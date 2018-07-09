@@ -1,4 +1,5 @@
 var request = require('request');
+var fs = require('fs');
 var secrets = require('./secrets');
 
 function getRepoContributors(repoOwner, repoName, callback) {
@@ -9,7 +10,6 @@ function getRepoContributors(repoOwner, repoName, callback) {
     Authorization: secrets.GITHUB_TOKEN
     }
   }
-
 
   request(options, function(err, response, body) {
     // Parse string received from Github into JSON, and pass it into callback function
@@ -28,3 +28,17 @@ getRepoContributors("jquery", "jquery", function(err, result) {
     console.log(user.avatar_url);
   })
 });
+
+
+function downloadImageByURL(url, filePath) {
+  request.get(url)
+       .on('error', function (err) {
+         throw err;
+       })
+       .on('response', function (response) {
+         console.log('Response Status Code: ', response.statusCode);
+       })
+       .pipe(fs.createWriteStream(filePath));
+}
+
+downloadImageByURL('https://avatars2.githubusercontent.com/u/2741?v=3&s=466%22,%20%22avatars/kvirani.jpg', './downloads/avatar.jpg')
