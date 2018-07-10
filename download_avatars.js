@@ -1,7 +1,8 @@
 // Request required modules
+require('dotenv').config()
 var request = require('request');
 var fs = require('fs');
-var secrets = require('./secrets');
+
 
 // Set owner and repo variables from command line input
 var owner = process.argv.slice(2,3).join('');
@@ -23,8 +24,8 @@ function getRepoContributors(repoOwner, repoName, callback) {
   var options = {
     url: 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors',
     headers: {
-    'User-Agent': 'aaronfordnet',
-    Authorization: secrets.GITHUB_TOKEN
+    "User-Agent": "aaronfordnet",
+    Authorization: process.env.GITHUB_TOKEN
     }
   }
 
@@ -46,7 +47,7 @@ getRepoContributors(owner, repo, function(err, result) {
     var login = user.login;
     var url = user.avatar_url;
     var path = `./avatars/${login}.jpg`;
-    downloadImageByURL(url, path, login)
+    downloadImageByURL(url, path, login);
   })
 });
 
