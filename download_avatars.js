@@ -12,10 +12,26 @@ var repo = process.argv.slice(3, 4).join('');
 function getRepoContributors(repoOwner, repoName, callback) {
 
   // Check for valid command line input
-  if (!repoOwner || !repoName) {
-    console.log('Input Error - Please enter a valid repo owner and name.');
+  if (!repoOwner || !repoName || process.argv.length !== 4 ) {
+    console.log('Input Error - Please enter a valid GitHub repo owner and name.');
     console.log('Example: node download_avatars.js <owner> <repo>');
     return;
+  }
+
+  // Check for .env file and github access token within
+  if (!fs.existsSync('.env')) {
+    console.log('Error - .env file not found.');
+    return;
+  }
+  if(!process.env.GITHUB_TOKEN) {
+    console.log('Error - GitHub access token not configured.');
+    return;
+  }
+
+  //Check if ./avatars folder exists, if not: create it
+  if (!fs.existsSync('./avatars')){
+    console.log('Creating download folder: ./avatars');
+    fs.mkdirSync('./avatars');
   }
 
   // Set options for request
@@ -29,8 +45,22 @@ function getRepoContributors(repoOwner, repoName, callback) {
 
   // Make request
   request(options, function (err, response, body) {
+
     // Parse requested string into JSON, and pass it into callback function's 'result' parameter
     var parsed = JSON.parse(body);
+
+    // Check if the provided owner/repo does not exist
+    if (parsed.message === 'Not Found') {
+      console.log('Error - Provided owner/repo does not exist.');
+      return;
+    };
+
+    // Check if provided GitHub token is invalid
+    if (parsed.message === 'Bad credentials') {
+      console.log('Error - Bad credentials and/or incorrect GitHub access token.');
+      return;
+    };
+
     callback(err, parsed);
   });
 }
