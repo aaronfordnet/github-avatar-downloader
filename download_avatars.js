@@ -3,8 +3,22 @@ var request = require('request');
 var fs = require('fs');
 var secrets = require('./secrets');
 
+// Set owner and repo variables from command line input
+var owner = process.argv.slice(2,3).join('');
+var repo = process.argv.slice(3,4).join('');
+
+// > node download_avatars.js jquery jquery
+
+
 // MAIN FUNCTION
 function getRepoContributors(repoOwner, repoName, callback) {
+
+  // Check for valid command line input
+  if (!repoOwner || !repoName) {
+    console.log('Input Error - Please enter a valid repo owner and name.\nExample: node download_avatars.js <owner> <repo>');
+    return;
+  }
+
   // Set options for request
   var options = {
     url: 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors',
@@ -22,8 +36,8 @@ function getRepoContributors(repoOwner, repoName, callback) {
   })
 }
 
-// CALL MAIN FUNCTION
-getRepoContributors("jquery", "jquery", function(err, result) {
+// CALL MAIN FUNCTION (with callback function)
+getRepoContributors(owner, repo, function(err, result) {
   if(err) {
     console.log("Error received:", err);
   }
